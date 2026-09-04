@@ -8,6 +8,9 @@ const noteSchema = new mongoose.Schema({
   fotografUrl: {
     type: String,
     required: false
+  },
+  tarih: {
+    type: String
   }
 }, { timestamps: true });
 

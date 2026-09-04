@@ -66,7 +66,7 @@ app.get('/api/notlar', async (req, res) => {
 // POST /api/notlar - Yeni not ve fotoğraf ekle
 app.post('/api/notlar', upload.single('fotograf'), async (req, res) => {
   try {
-    const { metin } = req.body;
+    const { metin, tarih } = req.body;
     let fotografUrl = null;
 
     if (req.file) {
@@ -79,7 +79,8 @@ app.post('/api/notlar', upload.single('fotograf'), async (req, res) => {
 
     const yeniNot = new Note({
       metin,
-      fotografUrl
+      fotografUrl,
+      tarih
     });
 
     const kaydedilenNot = await yeniNot.save();

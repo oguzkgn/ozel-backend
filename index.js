@@ -27,7 +27,8 @@ app.use(cors({
 app.use(express.json());
 
 // MongoDB Bağlantısı
-mongoose.connect(process.env.MONGODB_URI)
+const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+mongoose.connect(uri)
   .then(() => console.log('MongoDB veritabanına bağlanıldı.'))
   .catch((err) => console.error('MongoDB bağlantı hatası:', err));
 
@@ -125,7 +126,8 @@ app.post('/api/plans', async (req, res) => {
     const savedPlan = await newPlan.save();
     res.status(201).json(savedPlan);
   } catch (error) {
-    res.status(500).json({ message: 'Hata' });
+    console.error('Plan kaydedilirken hata:', error);
+    res.status(500).json({ message: 'Hata', error: error.message });
   }
 });
 

@@ -7,6 +7,8 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
 
 const Note = require('./models/Note');
+const Plan = require('./models/Plan');
+const DailyLog = require('./models/DailyLog');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -75,6 +77,70 @@ app.post('/api/notlar', upload.single('fotograf'), async (req, res) => {
   } catch (error) {
     console.error('Not eklerken hata:', error);
     res.status(500).json({ message: 'Sunucu hatası' });
+  }
+});
+
+// --- Plan Rotaları ---
+app.get('/api/plans', async (req, res) => {
+  try {
+    const plans = await Plan.find().sort({ createdAt: 1 });
+    res.status(200).json(plans);
+  } catch (error) {
+    res.status(500).json({ message: 'Hata' });
+  }
+});
+
+app.post('/api/plans', async (req, res) => {
+  try {
+    const newPlan = new Plan(req.body);
+    const savedPlan = await newPlan.save();
+    res.status(201).json(savedPlan);
+  } catch (error) {
+    res.status(500).json({ message: 'Hata' });
+  }
+});
+
+app.put('/api/plans/:id', async (req, res) => {
+  try {
+    const updatedPlan = await Plan.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json(updatedPlan);
+  } catch (error) {
+    res.status(500).json({ message: 'Hata' });
+  }
+});
+
+app.delete('/api/plans/:id', async (req, res) => {
+  try {
+    await Plan.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Silindi' });
+  } catch (error) {
+    res.status(500).json({ message: 'Hata' });
+  }
+});
+
+// --- Daily Rotaları ---
+app.get('/api/daily/history', async (req, res) => {
+  try {
+    const history = await DailyLog.find().sort({ date: 1 });
+    res.status(200).json(history);
+  } catch (error) {
+    res.status(500).json({ message: 'Hata' });
+  }
+});
+
+app.post('/api/daily', async (req, res) => {
+  try {
+    const { date } = req.body;
+    const existingLog = await DailyLog.findOne({ date });
+    if (existingLog) {
+      const updatedLog = await DailyLog.findOneAndUpdate({ date }, req.body, { new: true });
+      return res.status(200).json(updatedLog);
+    }
+    const newLog = new DailyLog(req.body);
+    const savedLog = await newLog.save();
+    res.status(201).json(savedLog);
+  } catch (error) {
+    res.status(500).json({ message: 'Hata' });
   }
 });
 

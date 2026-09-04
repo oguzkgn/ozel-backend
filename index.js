@@ -92,12 +92,20 @@ app.post('/api/notlar', upload.single('fotograf'), async (req, res) => {
 });
 
 // PUT /api/notlar/:id - Not güncelle
-app.put('/api/notlar/:id', async (req, res) => {
+app.put('/api/notlar/:id', upload.single('fotograf'), async (req, res) => {
   try {
-    const updatedNote = await Note.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { metin, tarih } = req.body;
+    let updateData = { metin, tarih };
+    
+    if (req.file) {
+      updateData.fotografUrl = req.file.path;
+    }
+
+    const updatedNote = await Note.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.status(200).json(updatedNote);
   } catch (error) {
-    res.status(500).json({ message: 'Hata' });
+    console.error('Not güncellenirken hata:', error);
+    res.status(500).json({ message: 'Hata', error: error.message });
   }
 });
 
